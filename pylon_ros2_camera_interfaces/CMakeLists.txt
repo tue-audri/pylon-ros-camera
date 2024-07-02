@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
 project(pylon_ros2_camera_interfaces)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
+
+##### Set CMP0148 policy #####
+if(POLICY CMP0148)
+  cmake_policy(SET CMP0148 NEW)
+endif()
+
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
