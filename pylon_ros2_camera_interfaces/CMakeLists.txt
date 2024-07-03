@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
 project(pylon_ros2_camera_interfaces)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
