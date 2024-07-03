@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.29/Modules)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
 
 ##### Set CMP0148 policy #####
 if(POLICY CMP0148)
