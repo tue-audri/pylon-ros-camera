@@ -579,7 +579,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CBaslerUniversalGrabResultPtr
             }
             else
             {
-                RCLCPP_ERROR_STREAM(LOGGER_BASE, "An image grabbing exception in pylon camera occurred: " << e.GetDescription());
+                RCLCPP_ERROR_STREAM(LOGGER_BASE, "An image grabbing exception occurred: " << e.GetDescription());
             }
         }
 
@@ -587,7 +587,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CBaslerUniversalGrabResultPtr
     }
     catch (...)
     {
-        RCLCPP_ERROR(LOGGER_BASE, "An unspecified image grabbing exception in pylon camera occurred");
+        RCLCPP_ERROR(LOGGER_BASE, "An unspecified image grabbing exception occurred");
         return false;
     }
 
