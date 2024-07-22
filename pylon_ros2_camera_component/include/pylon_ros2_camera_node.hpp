@@ -1809,9 +1809,9 @@ protected:
 
   // intern
   std::vector<std::size_t> sampling_indices_;
-  std::array<float, 256> brightness_exp_lut_;
+  std::array<float, 256> brightness_exp_lut_{};
 
-  bool is_sleeping_;
+  bool is_sleeping_{false};
 
   // diagnostics
   diagnostic_updater::Updater diagnostics_updater_;
