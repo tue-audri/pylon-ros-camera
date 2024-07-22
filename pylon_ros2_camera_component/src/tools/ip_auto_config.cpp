@@ -114,7 +114,7 @@ int main(int argc, char** argv)
            
             if (listDevices.size() > 0)
             {
-                std::stringstream ss ;
+                std::ostringstream ss ;
                 ss << listDevices.size();
                 logs.push_back("Found cameras " + ss.str());
                 enumurateNIC();
@@ -299,7 +299,7 @@ void enumurateNIC()
             std::string s = addr;
             if (s != "127.0.0.1")
             {
-                std::stringstream ss;
+                std::ostringstream ss;
                 ss << "Interfaces " <<" " << ifa->ifa_name  << " "<< addr;
                 printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
                 logs.push_back(ss.str());

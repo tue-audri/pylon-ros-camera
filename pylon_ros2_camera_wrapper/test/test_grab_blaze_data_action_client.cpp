@@ -163,7 +163,7 @@ namespace pylon_ros2_camera
           
           cv_bridge::CvImagePtr cv_img = cv_bridge::toCvCopy(result.result->intensity_maps[i], result.result->intensity_maps[i].encoding);
           
-          std::stringstream ss;
+          std::ostringstream ss;
           ss << "Intensity map #" << i+1;
 
           double ratio = (double)intensity_map.height / (double)intensity_map.width;
