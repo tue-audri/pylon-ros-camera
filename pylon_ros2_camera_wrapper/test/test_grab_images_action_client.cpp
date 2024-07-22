@@ -79,7 +79,7 @@ namespace pylon_ros2_camera
         send_goal_options.result_callback = std::bind(&TestGrabImagesActionClient::result_callback, this, _1);
         this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 
-        RCLCPP_INFO(this->get_logger(), "Goal sendt!");
+        RCLCPP_INFO(this->get_logger(), "Goal sent!");
       }
 
     private:
@@ -124,6 +124,12 @@ namespace pylon_ros2_camera
         for (std::size_t i = 0; i < result.result->images.size(); i++)
         {
           sensor_msgs::msg::Image& img = result.result->images[i];
+
+          if (img.data.empty())
+          {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "The image contains no data");
+            continue;
+          }
           
           RCLCPP_INFO_STREAM(this->get_logger(), "Image #" << i+1 << "\n\t"
             << "Encoding:  " << img.encoding << "\n\t"
@@ -134,6 +140,12 @@ namespace pylon_ros2_camera
             << "Frame ID:  " << img.header.frame_id);
           
           cv_bridge::CvImagePtr cv_img = cv_bridge::toCvCopy(result.result->images[i], result.result->images[i].encoding);
+
+          if (cv_img == nullptr)
+          {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "The image cannot be converted to cv::Mat");
+            continue;
+          }
           
           std::ostringstream ss;
           ss << "Image #" << i+1;

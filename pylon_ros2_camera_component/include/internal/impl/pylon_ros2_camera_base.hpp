@@ -49,8 +49,6 @@ namespace
     static const rclcpp::Logger LOGGER_BASE = rclcpp::get_logger("basler.pylon.ros2.pylon_ros2_camera_base");
 }
 
-int trigger_timeout;
-
 template <typename CameraTraitT>
 PylonROS2CameraImpl<CameraTraitT>::PylonROS2CameraImpl(Pylon::IPylonDevice* device) :
     PylonROS2Camera(),
@@ -384,7 +382,7 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
             }
         }
 
-        grab_strategy = parameters.grab_strategy_;
+        grab_strategy_ = parameters.grab_strategy_;
         //cam_->StartGrabbing();
         grabbingStarting();
         user_output_selector_enums_ = detectAndCountNumUserOutputs();
@@ -395,12 +393,12 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
 
         //grab_timeout_ = exposureTime().GetMax() * 1.05;
         grab_timeout_ = parameters.grab_timeout_; // grab timeout = 500 ms
-        trigger_timeout = parameters.trigger_timeout_;
+        trigger_timeout_ = parameters.trigger_timeout_;
 
         // grab one image to be sure, that the communication is successful
         Pylon::CBaslerUniversalGrabResultPtr grab_result;
         grab(grab_result);
-        if ( grab_result.IsValid() )
+        if (grab_result.IsValid())
         {
             is_ready_ = true;
         }
@@ -434,19 +432,21 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp:
     // ------------------------------------------------------------------------
     // In case of 12 bits we need to shift the image bits 4 positions to the left
     std::string ros_enc = currentROSEncoding();
-    uint16_t * shift_array = new uint16_t[img_size_byte_ / 2]; // Dynamically allocated to avoid heap size error
     std::string gen_api_encoding(cam_->PixelFormat.ToString().c_str());
-    if (encodingconversions::is_12_bit_ros_enc(ros_enc) && (gen_api_encoding == "BayerRG12" || gen_api_encoding == "BayerBG12" || gen_api_encoding == "BayerGB12" || gen_api_encoding == "BayerGR12" || gen_api_encoding == "Mono12") ){
+    if (encodingconversions::is_12_bit_ros_enc(ros_enc) && (gen_api_encoding == "BayerRG12" || gen_api_encoding == "BayerBG12" || gen_api_encoding == "BayerGB12" || gen_api_encoding == "BayerGR12" || gen_api_encoding == "Mono12"))
+    {
+        std::vector<uint16_t> shift_array(img_size_byte_ / 2); // Dynamically allocated to avoid heap size error
         const uint16_t *convert_bits = reinterpret_cast<uint16_t*>(ptr_grab_result->GetBuffer());
-        for (size_t i = 0; i < img_size_byte_ / 2; i++){
+        for (size_t i = 0; i < img_size_byte_ / 2; i++)
+        {
             shift_array[i] = convert_bits[i] << 4;
         }
-        image.assign((uint8_t *) shift_array, (uint8_t *) shift_array + img_size_byte_);
-    } else {
+        image.assign(reinterpret_cast<uint8_t *>(shift_array.data()), reinterpret_cast<uint8_t *>(shift_array.data()) + img_size_byte_);
+    } 
+    else 
+    {
         image.assign(pImageBuffer, pImageBuffer + img_size_byte_);
     }
-
-    delete[] shift_array;
 
     bool use_chunk_timestamp = false;
     if (this->getChunkModeActive() == 1)
@@ -505,15 +505,19 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image)
     // ------------------------------------------------------------------------
     // In case of 12 bits we need to shift the image bits 4 positions to the left
     std::string ros_enc = currentROSEncoding();
-    uint16_t shift_array[img_size_byte_ / 2];
 
-    if (encodingconversions::is_12_bit_ros_enc(ros_enc)){
+    if (encodingconversions::is_12_bit_ros_enc(ros_enc))
+    {
+        std::vector<uint16_t> shift_array(img_size_byte_ / 2);
         const uint16_t *convert_bits = reinterpret_cast<uint16_t*>(ptr_grab_result->GetBuffer());
-        for (size_t i = 0; i < img_size_byte_ / 2; i++){
+        for (size_t i = 0; i < img_size_byte_ / 2; i++)
+        {
             shift_array[i] = convert_bits[i] << 4;
         }
-        memcpy(image, (uint8_t *) shift_array, img_size_byte_);
-    } else {
+        memcpy(image, shift_array.data(), 2 * shift_array.size());
+    }
+    else
+    {
         memcpy(image, ptr_grab_result->GetBuffer(), img_size_byte_);
     }
 
@@ -548,7 +552,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CBaslerUniversalGrabResultPtr
         // -> 2nd trigger might get lost
         if ((cam_->TriggerMode.GetValue() == TriggerModeEnums::TriggerMode_On))
         {
-            if (cam_->WaitForFrameTriggerReady(trigger_timeout, Pylon::TimeoutHandling_ThrowException))
+            if (cam_->WaitForFrameTriggerReady(trigger_timeout_, Pylon::TimeoutHandling_ThrowException))
             {
                 cam_->ExecuteSoftwareTrigger();
             }
@@ -3239,14 +3243,14 @@ std::string PylonROS2CameraImpl<CameraTraitT>::grabbingStarting() const
 {
     try
     {
-        if (grab_strategy == 1)
+        if (grab_strategy_ == 1)
         {
             cam_->StartGrabbing(Pylon::EGrabStrategy::GrabStrategy_LatestImageOnly);
             RCLCPP_DEBUG(LOGGER_BASE, "Grabbing started (GrabStrategy_LatestImageOnly)");
             return "done";
         }
 
-        if (grab_strategy == 2)
+        if (grab_strategy_ == 2)
         {
             cam_->StartGrabbing(Pylon::EGrabStrategy::GrabStrategy_LatestImages);
             RCLCPP_DEBUG(LOGGER_BASE, "Grabbing started (GrabStrategy_LatestImages)");
@@ -3340,7 +3344,7 @@ bool PylonROS2CameraImpl<CameraTraitT>::setGrabbingStrategy(const int& strategy)
 {
     if (strategy >= 0 && strategy <= 2)
     {
-        grab_strategy = strategy;
+        grab_strategy_ = strategy;
         return true;
     }
     else

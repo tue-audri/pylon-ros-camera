@@ -1821,7 +1821,7 @@ std::string PylonROS2GigECamera::issueActionCommand(const int& device_key, const
         Pylon::CTlFactory & factory(Pylon::CTlFactory::GetInstance());
         Pylon::IGigETransportLayer* pTl = dynamic_cast<Pylon::IGigETransportLayer*>(factory.CreateTl(Pylon::BaslerGigEDeviceClass));
 
-        // Send an action command to the cameras
+        // Send an action command to the camera
         pTl->IssueActionCommand(device_key, group_key, group_mask, broadcast_address.c_str());
 
         RCLCPP_INFO_STREAM(LOGGER_GIGE, "Action command has been issued successfully: " 
@@ -1856,7 +1856,7 @@ std::string PylonROS2GigECamera::issueScheduledActionCommand(const int& device_k
         // Specify that the command will be executed roughly 30 seconds
         // (30 000 000 000 ticks) after the current timestamp.
         int64_t action_time = current_timestamp + action_time_ns_from_current_timestamp;
-        // Send a scheduled action command to the cameras
+        // Send a scheduled action command to the camera
         pTl->IssueScheduledActionCommand(device_key, group_key, group_mask, action_time, broadcast_address.c_str());
 
         RCLCPP_INFO_STREAM(LOGGER_GIGE, "Scheduled action command has been issued successfully: " 
