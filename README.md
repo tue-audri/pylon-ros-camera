@@ -25,10 +25,9 @@ You are welcome to post any questions or issues on [GitHub](https://github.com/b
 
 This repository including the pylon ROS2 packages must be cloned in your workspace (e.g., `dev_ws` for instance):  
 ```
-cd ~/dev_ws/src && git clone -b --recursive humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera
+cd ~/dev_ws/src && git clone --recursive -b humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera
 git submodule update --init --recursive
-```
-
+```  
 
 Install the ROS2 dependencies required by the pylon ROS2 packages:  
 ``cd ~/dev_ws && rosdep install --from-paths src --ignore-src -r -y``  
