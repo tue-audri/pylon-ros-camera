@@ -1,5 +1,19 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
+
+##### Set CMP0148 policy #####
+if(POLICY CMP0148)
+  cmake_policy(SET CMP0148 NEW)
+endif()
+
+# cmake_policy(SET CMP0144 OLD)
+
 project(pylon_ros2_camera_wrapper)
+
+# # Other project settings
+# find_package(PCL REQUIRED)
+# find_package(Eigen3 REQUIRED)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
