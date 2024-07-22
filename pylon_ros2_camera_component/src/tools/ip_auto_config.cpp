@@ -38,9 +38,6 @@
 #include <ifaddrs.h>
 
 using namespace Pylon;
-using namespace GenApi;
-using namespace Basler_GigECameraParams;
-using namespace Basler_GigEStreamParams;
 
 typedef Pylon::CBaslerGigECamera camera_t;
 std::vector<std::string> logs;
@@ -58,7 +55,7 @@ void writeLogToFile();
 /*
  * 
  */
-int main(int argc, char** argv)
+int main(int argc __attribute__((unused)), char** argv __attribute__((unused)))
 {
     // The exit code of the sample application.
     int exitCode = 0;
@@ -72,7 +69,6 @@ int main(int argc, char** argv)
     try
     {
         PylonInitialize();
-        int exitCode = 0;
         int selection = -1;
         DeviceInfoList_t listDevices;
         DeviceInfoList_t listReachableDevices;

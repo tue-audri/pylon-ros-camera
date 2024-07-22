@@ -28,6 +28,10 @@
 
 #include <GenApi/GenApi.h>
 
+#include <rclcpp/logger.hpp>
+
+#include <functional>
+
 #include "pylon_ros2_camera_node.hpp"
 
 
@@ -70,7 +74,7 @@ PylonROS2CameraNode::PylonROS2CameraNode(const rclcpp::NodeOptions& options)
     return;
 
   // starting spinning thread
-  RCLCPP_INFO_STREAM(LOGGER, "Start image grabbing if node connects to topic with " << "a spinning rate of: " << this->frameRate() << " Hz");
+  RCLCPP_INFO_STREAM(LOGGER, "Start image grabbing if node connects to topic with a spinning rate of: " << this->frameRate() << " Hz");
   timer_ = this->create_wall_timer(
             std::chrono::duration<double>(1. / this->frameRate()),
             std::bind(&PylonROS2CameraNode::spin, this));
@@ -654,7 +658,7 @@ bool PylonROS2CameraNode::initAndRegister()
 
   if (!this->pylon_camera_->applyCamSpecificStartupSettings(this->pylon_camera_parameter_set_))
   {
-    RCLCPP_ERROR_STREAM(LOGGER, "Error while applying the user-specified startup settings " << "(e.g., mtu size for GigE, ...) to the camera!");
+    RCLCPP_ERROR(LOGGER, "Error while applying the user-specified startup settings (e.g., mtu size for GigE, ...) to the camera!");
     this->cm_status_.status_id = pylon_ros2_camera_interfaces::msg::ComponentStatus::ERROR;
     this->cm_status_.status_msg = "Error while applying the user-specified startup settings";
     if (this->pylon_camera_parameter_set_.enable_status_publisher_)
@@ -4830,28 +4834,34 @@ std::shared_ptr<GrabImagesAction::Result> PylonROS2CameraNode::grabRawImages(con
       return result;
     }
 
+    result->success = true;
+
     if (goal->exposure_given)
     {
-      result->success = this->setExposure(goal->exposure_times[i], result->reached_exposure_times[i]);
+      const bool success = this->setExposure(goal->exposure_times[i], result->reached_exposure_times[i]);
+      result->success = result->success && success;
     }
 
     if (goal->gain_given)
     {
-      result->success = this->setGain(goal->gain_values[i], result->reached_gain_values[i]);
+      const bool success = this->setGain(goal->gain_values[i], result->reached_gain_values[i]);
+      result->success = result->success && success;
     }
     
     if (goal->gamma_given)
     {
-      result->success = this->setGamma(goal->gamma_values[i], result->reached_gamma_values[i]);
+      const bool success = this->setGamma(goal->gamma_values[i], result->reached_gamma_values[i]);
+      result->success = result->success && success;
     }
 
     if (goal->brightness_given)
     {
       int reached_brightness;
-      result->success = this->setBrightness(goal->brightness_values[i],
-                                            reached_brightness,
-                                            goal->exposure_auto,
-                                            goal->gain_auto);
+      const bool success = this->setBrightness(goal->brightness_values[i],
+                                              reached_brightness,
+                                              goal->exposure_auto,
+                                              goal->gain_auto);
+      result->success = result->success && success;
       result->reached_brightness_values[i] = static_cast<float>(reached_brightness);
       result->reached_exposure_times[i] = this->pylon_camera_->currentExposure();
       result->reached_gain_values[i] = this->pylon_camera_->currentGain();
