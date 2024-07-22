@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.10 (2024-07-22)
+-------------------
+* Many minor changes, bug fixes, and code update with respect to newest c++ standards
+
 2.0.9 (2024-06-18)
 -------------------
 * Fix memory leak with blaze images.
