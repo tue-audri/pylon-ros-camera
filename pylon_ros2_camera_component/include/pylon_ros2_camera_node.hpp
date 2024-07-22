@@ -1630,7 +1630,7 @@ protected:
 protected:
 
   // camera
-  PylonROS2Camera* pylon_camera_;
+  std::unique_ptr<PylonROS2Camera> pylon_camera_;
   image_geometry::PinholeCameraModel* pinhole_model_;
 
   PylonROS2CameraParameter pylon_camera_parameter_set_;

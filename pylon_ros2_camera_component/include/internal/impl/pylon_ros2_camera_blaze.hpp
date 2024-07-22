@@ -261,7 +261,7 @@ bool PylonROS2BlazeCamera::openCamera()
     return true;
 }
 
-bool PylonROS2BlazeCamera::applyCamSpecificStartupSettings(const PylonROS2CameraParameter& parameters)
+bool PylonROS2BlazeCamera::applyCamSpecificStartupSettings(const PylonROS2CameraParameter& parameters __attribute__((unused)))
 {
     try
     {
