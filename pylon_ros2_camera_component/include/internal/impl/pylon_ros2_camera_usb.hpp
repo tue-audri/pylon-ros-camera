@@ -154,7 +154,7 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
                     << cam_->AutoTargetBrightness.GetMax() * 255
                     << "] which is the average pixel intensity.");
             
-            RCLCPP_INFO(LOGGER_GIGE, "Default user setting loaded");
+            RCLCPP_INFO(LOGGER_USB, "Default user setting loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet1")
         {
