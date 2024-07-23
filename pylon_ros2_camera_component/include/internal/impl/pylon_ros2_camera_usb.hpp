@@ -153,32 +153,35 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
                     << cam_->AutoTargetBrightness.GetMin() * 255 << " - "
                     << cam_->AutoTargetBrightness.GetMax() * 255
                     << "] which is the average pixel intensity.");
+            
+            RCLCPP_INFO(LOGGER_GIGE, "Default user setting loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet1")
         {
             cam_->UserSetSelector.SetValue(Basler_UniversalCameraParams::UserSetSelector_UserSet1);
             cam_->UserSetLoad.Execute();
-            RCLCPP_INFO(LOGGER_USB, "User Set 1 Loaded");
+            RCLCPP_INFO(LOGGER_USB, "UserSet1 loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet2")
         {
             cam_->UserSetSelector.SetValue(Basler_UniversalCameraParams::UserSetSelector_UserSet2);
             cam_->UserSetLoad.Execute();
-            RCLCPP_INFO(LOGGER_USB, "User Set 2 Loaded");
+            RCLCPP_INFO(LOGGER_USB, "UserSet2 loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet3")
         {
             cam_->UserSetSelector.SetValue(Basler_UniversalCameraParams::UserSetSelector_UserSet3);
             cam_->UserSetLoad.Execute();
-            RCLCPP_INFO(LOGGER_USB, "User Set 3 Loaded");
+            RCLCPP_INFO(LOGGER_USB, "UserSet3 loaded");
         }
         else if (parameters.startup_user_set_ == "CurrentSetting")
         {
-            RCLCPP_INFO(LOGGER_USB, "No user set is provided -> Camera current setting will be applied");
+            RCLCPP_INFO(LOGGER_USB, "CurrentSetting loaded");
         }
         else
         {
             RCLCPP_WARN_STREAM(LOGGER_USB, "Unsupported startup user profile \"" << parameters.startup_user_set_ << "\", ignoring");
+            RCLCPP_INFO(LOGGER_USB, "CurrentSetting loaded");
         }
     }
     catch ( const GenICam::GenericException &e )

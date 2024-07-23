@@ -71,11 +71,11 @@ To visualize the images, [rqt](https://docs.ros.org/en/humble/Tutorials/Beginner
 The 3d point clouds acquired by the blaze can be visualized thanks to [rviz2](https://index.ros.org/p/rviz2/).  
 
 For camera models other than the blaze, specific user set can be specified thanks to the `startup_user_set` parameter.  
-``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py --ros-args -p startup_user_set:=Default``  or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py --ros-args -p startup_user_set:=UserSet1`` or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py --ros-args -p startup_user_set:=UserSet2`` or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py --ros-args -p startup_user_set:=UserSet3``  
+``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py startup_user_set:=Default``  or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py startup_user_set:=UserSet1`` or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py startup_user_set:=UserSet2`` or ``ros2 launch pylon_ros2_camera_wrapper pylon_ros2_camera.launch.py startup_user_set:=UserSet3``  
 
 The default trigger mode is set to software trigger. This means that the image acquisition is triggered with a certain frame rate, which may be lower than the maximum camera frame rate. The maximum camera frame rate can be reached when running a camera in a free-run or a hardware trigger mode.
 
-Beware that some parameters implemented by the driver, like for instance the parameter `startup_user_set`, can be set through both the ROS2 parameter server and the driver launch file `pylon_ros2_camera.launch.py`, and that the latter has the priority over the ROS2 parameter server. For instance, if `startup_user_set` is set to `Default` in the `pylon_ros2_camera_wrapper/config/default.yaml` user parameter file and if it is set to `CurrentSetting` in the driver launch file (and if the driver is started thanks to it), then `startup_user_set` will be set to `CurrentSetting`.    
+Beware that some parameters implemented by the driver, like for instance the parameter `startup_user_set`, can be set through 1. the `pylon_ros2_camera_wrapper/config/default.yaml` user parameter file, 2. the `pylon_ros2_camera.launch.py` driver launch file, and 3. the command line arguments of the launch command to start the driver. A parameter value set as an argument of the launch command to start the driver will overwrite the value set in the driver launch file itself, that will overwrite the value set in the user parameter file.    
 
 ### Image pixel encoding (not for the blaze)
 

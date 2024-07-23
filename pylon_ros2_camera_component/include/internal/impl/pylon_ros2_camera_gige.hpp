@@ -272,7 +272,7 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
             // frame transmission delay
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
 
-            RCLCPP_INFO(LOGGER_GIGE, "Default User Setting Loaded");
+            RCLCPP_INFO(LOGGER_GIGE, "Default user setting loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet1")
         {
@@ -283,7 +283,7 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
 
-            RCLCPP_INFO(LOGGER_GIGE, "User Set 1 Loaded");
+            RCLCPP_INFO(LOGGER_GIGE, "UserSet1 loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet2")
         {
@@ -294,7 +294,7 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
 
-            RCLCPP_INFO(LOGGER_GIGE, "User Set 2 Loaded");
+            RCLCPP_INFO(LOGGER_GIGE, "UserSet2 loaded");
         }
         else if (parameters.startup_user_set_ == "UserSet3")
         {
@@ -305,7 +305,7 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
 
-            RCLCPP_INFO(LOGGER_GIGE, "User Set 3 Loaded");
+            RCLCPP_INFO(LOGGER_GIGE, "UserSet3 loaded");
         }
         else if (parameters.startup_user_set_ == "CurrentSetting")
         {
@@ -313,11 +313,17 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
 
-            RCLCPP_INFO(LOGGER_GIGE, "No user set is provided -> Camera current setting will be applied");
+            RCLCPP_INFO(LOGGER_GIGE, "CurrentSetting loaded");
         }
         else
         {
             RCLCPP_WARN_STREAM(LOGGER_GIGE, "Unsupported startup user profile \"" << parameters.startup_user_set_ << "\", ignoring");
+            
+            cam_->GevSCPSPacketSize.SetValue(parameters.mtu_size_);
+            cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
+            cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);
+
+            RCLCPP_INFO(LOGGER_GIGE, "CurrentSetting loaded");
         }
     }
     catch ( const GenICam::GenericException &e )
