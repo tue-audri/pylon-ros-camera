@@ -463,6 +463,9 @@ Some classes includes in their constructor the following command, commented by d
 `rcutils_ret_t __attribute__((unused)) res = rcutils_logging_set_logger_level(LOGGER_BASE.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);`
 Uncomment it to display on your terminal more detailed debug information.
 
+With pylon 7.5.0, if the pylon viewer does not start, this is due to a Qt dependency missing. Try installing the xcb-cursor0 library with the following command: `sudo apt install libxcb-cursor0`. If it does not solve your issue, try starting the pylon viewer from the `bin` directory of pylon:
+`cd /opt/pylon/bin/ && ./pylonviewer`. Report then the error message to the pylon support team.
+
 To increase performance and to minimize CPU usage when grabbing images, the following settings should be considered:
 
 ### Camera hot-swapping

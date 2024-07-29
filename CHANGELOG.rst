@@ -5,6 +5,7 @@ Changelog for package pylon_ros2_camera
 2.0.10 (2024-07-22)
 -------------------
 * Many minor changes, bug fixes, and code update with respect to newest c++ standards
+* The ROS2 driver / Humble branch has been successfully tested with pylon 7.5.0 and the supplementary package for blaze 1.6.0. If with pylon 7.5.0, the pylon viewer does not start, refer to the Troubleshooting section of the RO2 driver documentation.
 
 2.0.9 (2024-06-18)
 -------------------
