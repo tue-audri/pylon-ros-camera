@@ -405,6 +405,7 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
         else
         {
             RCLCPP_ERROR(LOGGER_BASE, "PylonROS2Camera not ready because the result of the initial grab is invalid");
+            return false;
         }
     }
     catch ( const GenICam::GenericException &e )
