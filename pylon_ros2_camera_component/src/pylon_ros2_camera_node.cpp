@@ -4393,6 +4393,12 @@ void PylonROS2CameraNode::executeGrabBlazeDataAction(const std::shared_ptr<GrabB
   std::size_t n_data = *std::max_element(candidates.begin(), candidates.end());
   // if new parameters are added, needs to be checked. See PylonROS2CameraNode::grabRawImages.
 
+  result->point_clouds.clear();
+  result->intensity_maps.clear();
+  result->depth_maps.clear();
+  result->depth_color_maps.clear();
+  result->confidence_maps.clear();
+
   result->point_clouds.resize(n_data);
   result->intensity_maps.resize(n_data);
   result->depth_maps.resize(n_data);
@@ -4787,6 +4793,7 @@ std::shared_ptr<GrabImagesAction::Result> PylonROS2CameraNode::grabRawImages(con
     return result;
   }
 
+  result->images.clear();
   result->images.resize(n_images);
   result->reached_exposure_times.resize(n_images);
   result->reached_gain_values.resize(n_images);

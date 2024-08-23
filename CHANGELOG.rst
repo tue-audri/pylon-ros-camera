@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.11 (2024-08-23)
+-------------------
+* Fixing issue related to the use of WaitForFrameTriggerReady() in the base. This function is not supported by all camera devices. The function CanWaitForFrameTriggerReady() is now used beforehand.
+
 2.0.10 (2024-07-22)
 -------------------
 * Many minor changes, bug fixes, and code update with respect to newest c++ standards
