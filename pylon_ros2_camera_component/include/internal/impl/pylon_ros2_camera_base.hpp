@@ -553,15 +553,23 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CBaslerUniversalGrabResultPtr
         // -> 2nd trigger might get lost
         if ((cam_->TriggerMode.GetValue() == TriggerModeEnums::TriggerMode_On))
         {
-            if (cam_->WaitForFrameTriggerReady(trigger_timeout_, Pylon::TimeoutHandling_ThrowException))
+            if (!cam_->CanWaitForFrameTriggerReady())
             {
+                RCLCPP_WARN(LOGGER_BASE, "The connected camera device does not support waiting for frame trigger ready. Software trigger will be immediately executed.");
                 cam_->ExecuteSoftwareTrigger();
             }
             else
             {
-                RCLCPP_ERROR(LOGGER_BASE, "Error WaitForFrameTriggerReady() timed out, impossible to ExecuteSoftwareTrigger()");
-                return false;
-            }
+                if (cam_->WaitForFrameTriggerReady(trigger_timeout_, Pylon::TimeoutHandling_ThrowException))
+                {
+                    cam_->ExecuteSoftwareTrigger();
+                }
+                else
+                {
+                    RCLCPP_ERROR(LOGGER_BASE, "Error WaitForFrameTriggerReady() timed out, impossible to ExecuteSoftwareTrigger()");
+                    return false;
+                }
+            }            
         }
 
         cam_->RetrieveResult(grab_timeout_, grab_result, Pylon::TimeoutHandling_ThrowException);
