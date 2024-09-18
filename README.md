@@ -24,15 +24,19 @@ You are welcome to post any questions or issues on [GitHub](https://github.com/b
 ### Install and build the packages
 
 This repository including the pylon ROS2 packages must be cloned in your workspace (e.g., `dev_ws` for instance):  
-``cd ~/dev_ws/src && git clone -b humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera``  
-Due to a known issue with ROS2 (see the dedicated section below), the latest version of the `image_common` package must be installed from sources:  
-``cd ~/dev_ws/src/pylon_ros2_camera && git clone https://github.com/ros-perception/image_common.git -b humble``  
+```
+cd ~/dev_ws/src && git clone --recursive -b humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera
+cd pylon_ros2_camera
+git submodule update --init --recursive
+```  
 
 Install the ROS2 dependencies required by the pylon ROS2 packages:  
 ``cd ~/dev_ws && rosdep install --from-paths src --ignore-src -r -y``  
 You may experience some problems with the `diagnostic_updater` and `pcl_ros` dependencies. In this case, install them by executing the following commands:  
-``sudo apt install ros-humble-diagnostic-updater``  
-``sudo apt install ros-humble-pcl-ros``  
+```
+sudo apt install ros-humble-diagnostic-updater
+sudo apt install ros-humble-pcl-ros
+```
 
 Compile the workspace using `colcon`:  
 ``cd ~/dev_ws && colcon build``  
