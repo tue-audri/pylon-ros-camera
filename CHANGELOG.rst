@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.0 (2024-09-19)
+-------------------
+* Easier driver installation procedure with image_common as submodule. Documented in README file.
+
 2.0.11 (2024-08-23)
 -------------------
 * Fixing issue related to the use of WaitForFrameTriggerReady() in the base. This function is not supported by all camera devices. The function CanWaitForFrameTriggerReady() is now used beforehand.
