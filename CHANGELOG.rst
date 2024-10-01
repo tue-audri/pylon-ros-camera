@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.0 (2024-10-01)
+-------------------
+* The pylon driver is now compatible with ROS2 Jazzy Jalisco. Dedicated branch has been created.
+
 2.1.0 (2024-09-19)
 -------------------
 * Easier driver installation procedure with image_common as submodule. Documented in README file.

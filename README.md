@@ -1,6 +1,6 @@
 # ROS2-Driver for Basler Cameras
 
-The official pylon ROS2 driver for [Basler](http://www.baslerweb.com/) GigE Vision, Basler USB3 Vision and Basler blaze 3D cameras (Humble Hawksbill)
+The official pylon ROS2 driver for [Basler](http://www.baslerweb.com/) GigE Vision, Basler USB3 Vision and Basler blaze 3D cameras (Jazzy Jalisco)
 
 This driver provides many functionalities available through the Basler [pylon Camera Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/) C++ API.
 
@@ -25,7 +25,7 @@ You are welcome to post any questions or issues on [GitHub](https://github.com/b
 
 This repository including the pylon ROS2 packages must be cloned in your workspace (e.g., `dev_ws` for instance):  
 ```
-cd ~/dev_ws/src && git clone --recursive -b jazzy https://github.com/basler/pylon-ros-camera pylon_ros2_camera
+cd ~/dev_ws/src && git clone --recursive -b jazzy_beta https://github.com/basler/pylon-ros-camera pylon_ros2_camera
 cd pylon_ros2_camera
 git submodule update --init --recursive
 ```  
@@ -41,7 +41,7 @@ sudo apt install ros-jazzy-pcl-ros
 Compile the workspace using `colcon`:  
 ``cd ~/dev_ws && colcon build``  
 
-**Note**: The --symlink-install flag can be added to the `colcon build` command. This allows the installed files to be changed by changing the files in the source space (e.g., Python files or other not compiled resourced) for faster iteration (refer to [the ROS2 documentation](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)).
+**Note**: The --symlink-install flag can be added to the `colcon build` command. This allows the installed files to be changed by changing the files in the source space (e.g., Python files or other not compiled resourced) for faster iteration (refer to [the ROS2 documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)).
 
 **Note**: The packages are built in Release by default. The build type can be modfied by using the `--cmake-args` flag (for instance `colcon build --symlink-install --cmake-args=-DCMAKE_BUILD_TYPE=Debug`).
 
@@ -71,7 +71,7 @@ The pylon node defines the different interface names according to the following 
 The camera and the node names can be set thanks respectively to the `camera_name` and `node_name` parameters.  
 
 Acquisition images are published through the `[Camera name]/[Node name]/[image_raw]` topic, only if a subscriber to this topic has been registered.  
-To visualize the images, [rqt](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Introducing-Turtlesim/Introducing-Turtlesim.html#install-rqt) can be used. Add an image viewer plugin through thanks to the contextual menu (Plugin -> Visualization -> Image View) and select the `[Camera name]/[Node name]/[image_raw]` topic to display the acquired and published images.  
+To visualize the images, [rqt](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Introducing-Turtlesim/Introducing-Turtlesim.html#install-rqt) can be used. Add an image viewer plugin through thanks to the contextual menu (Plugin -> Visualization -> Image View) and select the `[Camera name]/[Node name]/[image_raw]` topic to display the acquired and published images.  
 The 3d point clouds acquired by the blaze can be visualized thanks to [rviz2](https://index.ros.org/p/rviz2/).  
 
 For camera models other than the blaze, specific user set can be specified thanks to the `startup_user_set` parameter.  
@@ -131,7 +131,7 @@ USB cameras must be disconnected and then reconnected after setting a new device
 
 - **camera_frame**  
   The tf2 frame under which the images were published.  
-  ROS2 provides a library called [tf2](https://docs.ros.org/en/humble/Concepts/About-Tf2.html) (*TransForm* version 2) to manage the coordinate transformations between the different frames (coordinate systems) defined by the user and assigned to the components of a robotics system.
+  ROS2 provides a library called [tf2](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Tf2.html) (*TransForm* version 2) to manage the coordinate transformations between the different frames (coordinate systems) defined by the user and assigned to the components of a robotics system.
 
 - **device_user_id**  
   The DeviceUserID of the camera. If empty, the first camera found in the device list will be used.
@@ -452,7 +452,7 @@ The folder `pylon_ros2_camera_wrapper/test` includes different test programs. te
 ## Known issues
 
 ### Getting the number of subscribers from camera publisher
-It is not possible to count correctly the number of subscribers to the `image_raw` and `image_rect` topics because of a known issue with the function `CameraPublisher::getNumSubscribers`. That is why [this image_common package](https://github.com/ros-perception/image_common/tree/humble), fixing this issue, needs to be cloned and compiled together with the `pylon_ros2_camera_node`. 
+It is not possible to count correctly the number of subscribers to the `image_raw` and `image_rect` topics because of a known issue with the function `CameraPublisher::getNumSubscribers`. That is why [this image_common package](https://github.com/ros-perception/image_common/tree/jazzy), fixing this issue, needs to be cloned and compiled together with the `pylon_ros2_camera_node`. 
 
 ### User input in terminal when starting node through launch files
 The ros2 launch mechanism doesn't allow to access stdin through a terminal (see [here](https://github.com/ros2/launch_ros/issues/165) and [here](https://answers.ros.org/question/343326/ros2-prefix-in-launch-file/)). This is solved in this implementation by installing and using `xterm` to emulate a terminal with possible user interaction.
