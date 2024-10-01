@@ -33,6 +33,8 @@
   <!-- For the tests -->
   <build_depend>cv_bridge</build_depend>
   <exec_depend>cv_bridge</exec_depend>
+  <build_depend>image_geometry</build_depend>
+  <exec_depend>image_geometry</exec_depend>
 
   <!-- The ability to run Python tests using pytest in the ament buildsystem in CMake. -->
   <test_depend>ament_cmake_pytest</test_depend>

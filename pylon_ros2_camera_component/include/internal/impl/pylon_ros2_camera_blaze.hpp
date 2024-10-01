@@ -35,7 +35,11 @@
 
 #include <pylon/BlazeInstantCamera.h>
 
-#include <cv_bridge/cv_bridge.h>
+#ifdef cv_bridge_HPP
+    #include <cv_bridge/cv_bridge.hpp>
+#else
+    #include <cv_bridge/cv_bridge.h>
+#endif
 #include <opencv2/highgui/highgui.hpp>
 
 //#include <boost/make_shared.hpp>
