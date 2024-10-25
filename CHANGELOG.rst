@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.1 (2024-10-25)
+-------------------
+* Taking into account auto exposure upper limit when user set is set to current setting.
+
 2.1.0 (2024-09-19)
 -------------------
 * Easier driver installation procedure with image_common as submodule. Documented in README file.
