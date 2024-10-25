@@ -343,6 +343,8 @@ public:
 
     virtual std::string enablePTP(const bool& value) override;
 
+    virtual std::string getPTPStatus(int64_t& offset_from_master, std::string& status, std::string& servo_status);
+
     virtual std::string enableSyncFreeRunTimer(const bool& value) override;
 
     virtual std::string updateSyncFreeRunTimer() override;

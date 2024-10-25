@@ -475,9 +475,12 @@ void PylonROS2CameraNode::initServices()
   srv_name = srv_prefix + "enable_ptp";
   this->enable_ptp_srv_ = this->create_service<SetBoolSrv>(srv_name, std::bind(&PylonROS2CameraNode::enablePTPCallback, this, _1, _2));
 
+  srv_name = srv_prefix + "get_ptp_status";
+  this->get_ptp_status_srv_ = this->create_service<GetPtpStatusSrv>(srv_name, std::bind(&PylonROS2CameraNode::getPTPStatusCallback, this, _1, _2));
+
   srv_name = srv_prefix + "enable_sync_free_run_timer";
   this->enable_sync_free_run_timer_srv_ = this->create_service<SetBoolSrv>(srv_name, std::bind(&PylonROS2CameraNode::enableSyncFreeRunTimerCallback, this, _1, _2));
-  
+
   srv_name = srv_prefix + "enable_spatial_filter";
   this->enable_spatial_filter_srv_ = this->create_service<SetBoolSrv>(srv_name, std::bind(&PylonROS2CameraNode::enableSpatialFilterCallback, this, _1, _2));
 
@@ -3939,6 +3942,28 @@ void PylonROS2CameraNode::enablePTPCallback(const std::shared_ptr<SetBoolSrv::Re
   }
 }
 
+void PylonROS2CameraNode::getPTPStatusCallback(const std::shared_ptr<GetPtpStatusSrv::Request> request,
+                                                 std::shared_ptr<GetPtpStatusSrv::Response> response)
+{
+  (void)request;
+  int64_t offset_from_master;
+  std::string status;
+  std::string servo_status;
+  response->message = this->pylon_camera_->getPTPStatus(offset_from_master, status, servo_status);
+
+  if (response->message.find("done") != std::string::npos)
+  {
+    response->ptp_status = status;
+    response->ptp_servo_status = servo_status;
+    response->offset_from_master = offset_from_master;
+    response->success = true;
+  }
+  else
+  {
+    response->success = false;
+  }
+}
+
 void PylonROS2CameraNode::enableSyncFreeRunTimerCallback(const std::shared_ptr<SetBoolSrv::Request> request,
                                                          std::shared_ptr<SetBoolSrv::Response> response)
 {
@@ -5070,6 +5095,18 @@ void PylonROS2CameraNode::publishCurrentParams()
       this->current_params_.current_image_ros_encoding = this->pylon_camera_->currentROSEncoding();
       this->current_params_.temperature = this->pylon_camera_->getTemperature();
       this->current_params_.max_num_buffer = this->pylon_camera_->getMaxNumBuffer();
+
+      int64_t offset_from_master = 0;
+      std::string status = "UNKNOWN";
+      std::string servo_status  = "UNKNOWN";
+      std::string response = this->pylon_camera_->getPTPStatus(offset_from_master, status, servo_status);
+
+      if (response.find("done") != std::string::npos)
+      {
+        this->current_params_.ptp_status = status;
+        this->current_params_.ptp_servo_status = servo_status;
+        this->current_params_.ptp_offset = offset_from_master;
+      }
 
       this->current_params_.success = true;
     }

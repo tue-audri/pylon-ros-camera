@@ -46,6 +46,7 @@
 #include "pylon_ros2_camera_interfaces/srv/get_integer_value.hpp"
 #include "pylon_ros2_camera_interfaces/srv/get_float_value.hpp"
 #include "pylon_ros2_camera_interfaces/srv/get_string_value.hpp"
+#include "pylon_ros2_camera_interfaces/srv/get_ptp_status.hpp"
 #include "pylon_ros2_camera_interfaces/srv/set_binning.hpp"
 #include "pylon_ros2_camera_interfaces/srv/set_brightness.hpp"
 #include "pylon_ros2_camera_interfaces/srv/set_exposure.hpp"
@@ -107,6 +108,7 @@ namespace pylon_ros2_camera
 using GetIntegerSrv                 = pylon_ros2_camera_interfaces::srv::GetIntegerValue;
 using GetFloatSrv                   = pylon_ros2_camera_interfaces::srv::GetFloatValue;
 using GetStringSrv                  = pylon_ros2_camera_interfaces::srv::GetStringValue;
+using GetPtpStatusSrv               = pylon_ros2_camera_interfaces::srv::GetPtpStatus;
 
 using SetBinningSrv                 = pylon_ros2_camera_interfaces::srv::SetBinning;
 using SetBrightnessSrv              = pylon_ros2_camera_interfaces::srv::SetBrightness;
@@ -1310,6 +1312,14 @@ protected:
                          std::shared_ptr<SetBoolSrv::Response> response);
 
   /**
+   * @brief Service callback for getting the ptp status - Applies to: GigE, ace 2 GigE, ace 2 USB, ace USB and dart 2 USB.
+   * @param req request
+   * @param res response
+   */
+  void getPTPStatusCallback(const std::shared_ptr<GetPtpStatusSrv::Request> request,
+                            std::shared_ptr<GetPtpStatusSrv::Response> response);
+
+  /**
    * @brief Service callback for enabling/disabling the synchronous free run mode - Applies to: GigE.
    * @param req request
    * @param res response
@@ -1693,6 +1703,8 @@ protected:
   rclcpp::Service<GetFloatSrv>::SharedPtr get_chunk_exposure_time_srv_;
 
   rclcpp::Service<GetStringSrv>::SharedPtr get_pfs_srv_;
+
+  rclcpp::Service<GetPtpStatusSrv>::SharedPtr get_ptp_status_srv_;
   
   rclcpp::Service<SetBinningSrv>::SharedPtr set_binning_srv_;
   rclcpp::Service<SetBrightnessSrv>::SharedPtr set_brightness_srv_;

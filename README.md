@@ -313,6 +313,7 @@ Name          | Notes
 /my_camera/pylon_ros2_camera_node/enable_hdr_mode  | data : false = deactivate, true = activate
 /my_camera/pylon_ros2_camera_node/enable_outlier_removal  | data : false = deactivate, true = activate
 /my_camera/pylon_ros2_camera_node/enable_ptp  | data : false = deactivate, true = activate
+/my_camera/pylon_ros2_camera_node/get_ptp_status  | -
 /my_camera/pylon_ros2_camera_node/enable_ptp_management_protocol  | data : false = deactivate, true = activate
 /my_camera/pylon_ros2_camera_node/enable_spatial_filter  | data : false = deactivate, true = activate
 /my_camera/pylon_ros2_camera_node/enable_sync_free_run_timer  | data : false = deactivate, true = activate
