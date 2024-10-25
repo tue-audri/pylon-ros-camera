@@ -4812,6 +4812,40 @@ std::string PylonROS2CameraImpl<CameraTraitT>::enablePTP(const bool& value)
 }
 
 template <typename CameraTraitT>
+std::string PylonROS2CameraImpl<CameraTraitT>::getPTPStatus(int64_t& offset_from_master, std::string& status, std::string& servo_status)
+{
+    offset_from_master = -1;
+    status = "no_status";
+    servo_status = "no_servo_status";
+
+    try
+    {
+        if (GenApi::IsAvailable(cam_->PtpServoStatus))
+        {
+            cam_->PtpDataSetLatch();
+            Basler_UniversalCameraParams::PtpStatusEnums status_enum = cam_->PtpStatus.GetValue();
+            Basler_UniversalCameraParams::PtpServoStatusEnums servo_status_enum = cam_->PtpServoStatus.GetValue();
+            offset_from_master  = cam_->PtpOffsetFromMaster.GetValue();
+
+            status = cam_->PtpStatus.ToString(status_enum);
+            servo_status = cam_->PtpServoStatus.ToString(servo_status_enum);
+
+            return "done";
+        }
+        else
+        {
+            RCLCPP_DEBUG_STREAM(LOGGER_BASE, "Error while trying to get ptp status. The connected camera does not support this feature.");
+            return "The connected camera does not support this feature";
+        }
+    }
+    catch (const GenICam::GenericException &e)
+    {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while getting PTP status:" << e.GetDescription());
+        return e.GetDescription();
+    }
+}
+
+template <typename CameraTraitT>
 std::string PylonROS2CameraImpl<CameraTraitT>::enableSyncFreeRunTimer(const bool& value)
 {
     try

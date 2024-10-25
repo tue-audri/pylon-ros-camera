@@ -1,11 +1,18 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.8)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
+# cmake_minimum_required(VERSION 3.16)
 
-# Set CMP0148 policy
-if(POLICY CMP0148)
-  cmake_policy(SET CMP0148 NEW)
-endif()
+# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/cmake-3.22/Modules)
+
+# # Set CMP0144 policy
+# if(POLICY CMP0144)
+#   cmake_policy(SET CMP0144 OLD)
+# endif()
+
+# # Set CMP0148 policy
+# if(POLICY CMP0148)
+#   cmake_policy(SET CMP0148 NEW)
+# endif()
 
 project(pylon_ros2_camera_interfaces)
 
@@ -33,6 +40,7 @@ set(SRV_FILES
   "srv/GetIntegerValue.srv"
   "srv/GetFloatValue.srv"
   "srv/GetStringValue.srv"
+  "srv/GetPtpStatus.srv"
   "srv/SetBinning.srv"
   "srv/SetBrightness.srv"
   "srv/SetExposure.srv"
