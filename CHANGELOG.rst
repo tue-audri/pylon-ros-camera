@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.1 (2024-10-25)
+-------------------
+* Taking into account auto exposure upper limit when user set is set to current setting.
+
 2.2.0 (2024-10-01)
 -------------------
 * The pylon driver is now compatible with ROS2 Jazzy Jalisco. Dedicated branch has been created.
