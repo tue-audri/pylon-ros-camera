@@ -240,6 +240,19 @@ bool PylonROS2GigEAce2Camera::applyCamSpecificStartupSettings(const PylonROS2Cam
         }
         else if (parameters.startup_user_set_ == "CurrentSetting")
         {
+            /* Thresholds for the AutoExposure Functions:
+                *  - lower limit can be used to get rid of changing light conditions
+                *    due to 50Hz lamps (-> 20ms cycle duration)
+                *  - upper limit is to prevent motion blur
+                */
+            double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
+            cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
+            cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
+            RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
+                    << cam_->ExposureTimeAbs.GetMin()
+                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                    << "].");
+
             cam_->GevSCPSPacketSize.SetValue(parameters.mtu_size_);
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
             cam_->GevSCFTD.SetValue(parameters.frame_transmission_delay_);

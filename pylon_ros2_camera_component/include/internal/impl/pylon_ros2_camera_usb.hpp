@@ -105,11 +105,11 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
             cam_->TriggerSource.SetValue(Basler_UniversalCameraParams::TriggerSource_Software);
             cam_->TriggerMode.SetValue(Basler_UniversalCameraParams::TriggerMode_On);
 
-             /* Thresholds for the AutoExposure Functions:
-              *  - lower limit can be used to get rid of changing light conditions
-              *    due to 50Hz lamps (-> 20ms cycle duration)
-              *  - upper limit is to prevent motion blur
-              */
+            /* Thresholds for the AutoExposure Functions:
+            *  - lower limit can be used to get rid of changing light conditions
+            *    due to 50Hz lamps (-> 20ms cycle duration)
+            *  - upper limit is to prevent motion blur
+            */
             double upper_lim = std::min(parameters.auto_exposure_upper_limit_,
                                         cam_->ExposureTime.GetMax());
             cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
@@ -176,6 +176,20 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
         }
         else if (parameters.startup_user_set_ == "CurrentSetting")
         {
+            /* Thresholds for the AutoExposure Functions:
+            *  - lower limit can be used to get rid of changing light conditions
+            *    due to 50Hz lamps (-> 20ms cycle duration)
+            *  - upper limit is to prevent motion blur
+            */
+            double upper_lim = std::min(parameters.auto_exposure_upper_limit_,
+                                        cam_->ExposureTime.GetMax());
+            cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
+            cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
+            RCLCPP_INFO_STREAM(LOGGER_USB, "Cam has upper exposure value limit range: ["
+                    << cam_->ExposureTimeAbs.GetMin()
+                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                    << "].");
+            
             RCLCPP_INFO(LOGGER_USB, "CurrentSetting loaded");
         }
         else
