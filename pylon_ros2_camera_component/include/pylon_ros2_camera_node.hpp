@@ -38,6 +38,7 @@
 // topics
 #include "pylon_ros2_camera_interfaces/msg/current_params.hpp"
 #include "pylon_ros2_camera_interfaces/msg/component_status.hpp"
+#include "pylon_ros2_camera_interfaces/msg/camera_timestamp.hpp"
 
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -1553,6 +1554,11 @@ protected:
    * @brief Callback to diagnostics
    */
   void diagnosticsTimerCallback();
+  
+   /**
+   * @brief Callback for publishing camera's current time
+   */
+  void cameraTimeAcquisionTimerCallback();
 
   /**
    * @brief Check if service exists
@@ -1659,6 +1665,17 @@ protected:
   pylon_ros2_camera_interfaces::msg::CurrentParams current_params_;
   rclcpp::Publisher<pylon_ros2_camera_interfaces::msg::ComponentStatus>::SharedPtr component_status_pub_;
   pylon_ros2_camera_interfaces::msg::ComponentStatus cm_status_;
+  
+  // Publisher for image timestamps
+  rclcpp::Publisher<pylon_ros2_camera_interfaces::msg::CameraTimestamp>::SharedPtr img_timestamp_pub_;
+  pylon_ros2_camera_interfaces::msg::CameraTimestamp img_timestamp_;
+
+  // Publisher for current camera timestamp
+  rclcpp::Publisher<pylon_ros2_camera_interfaces::msg::CameraTimestamp>::SharedPtr camera_timestamp_pub_;
+  pylon_ros2_camera_interfaces::msg::CameraTimestamp camera_timestamp_;
+
+  rclcpp::TimerBase::SharedPtr camera_timestamp_timer_;
+  
   // image transport publishers
   image_transport::CameraPublisher img_raw_pub_;
   image_transport::Publisher* img_rect_pub_;

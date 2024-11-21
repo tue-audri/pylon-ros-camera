@@ -97,7 +97,10 @@ bool PylonROS2DARTCamera::grab(Pylon::CGrabResultPtr& grab_result)
     { 
         // /!\ The dart camera device does not support
         // 'waitForFrameTriggerReady'
-        cam_->ExecuteSoftwareTrigger();
+        if (cam_->TriggerSource.GetValue() == TriggerSourceEnums::TriggerSource_Software) 
+        {
+            cam_->ExecuteSoftwareTrigger();
+        }
         cam_->RetrieveResult(grab_timeout_, grab_result,
                              Pylon::TimeoutHandling_ThrowException);
     }   

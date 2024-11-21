@@ -113,6 +113,36 @@ public:
      * provided via the SetCameraInfo-service from the CameraInfoManager
      */
     void setCameraInfoURL(rclcpp::Node& nh, const std::string& camera_info_url);
+    
+    /**
+     * Getter for the hardware_trigger_line_ read from ros-parameter server
+     */
+    const int& hardwareTriggerLine() const;
+
+    /**
+     * Setter for the hardware_trigger_line_ initially set from ros-parameter server
+     */
+    void setHardwareTriggerLine(rclcpp::Node& nh, const int& hardware_trigger_line);
+
+    /**
+     * Getter for the reverse_x_ read from ros-parameter server
+     */
+    const bool& reverseX() const;
+
+    /**
+     * Setter for the reverse_x_ initially set from ros-parameter server
+     */
+    void setReverseX(rclcpp::Node& nh, const bool& reverse_x);
+
+    /**
+     * Getter for the reverse_y_ read from ros-parameter server
+     */
+    const bool& reverseY() const;
+
+    /**
+     * Setter for the reverse_y_ initially set from ros-parameter server
+     */
+    void setReverseY(rclcpp::Node& nh, const bool& reverse_y);
 
 public:
     /** Binning factor to get downsampled images. It refers here to any camera
@@ -335,7 +365,21 @@ public:
     * 2 = GrabStrategy_LatestImages
     */
     int grab_strategy_;
+    
+    /**
+     * Trigger source for hardware triggering. 1-4 stands for Line1-1Line4. o stands for Software triggering
+    */
+    int hardware_trigger_line_;
 
+    /**
+     * Whether to reverse image horizontally
+    */
+    bool reverse_x_;
+
+    /**
+     * Whether to reverse image vertically
+    */
+    bool reverse_y_;
 
 protected:
     /**

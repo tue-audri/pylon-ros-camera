@@ -11,6 +11,58 @@ from launch.launch_context import LaunchContext
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+# Gets list of camera IDs passed at runtime
+def get_runtime_camera_ids(
+        context,
+        node_name,
+        launch_prefix,
+        mtu_size,
+        startup_user_set,
+        enable_status_publisher,
+        enable_current_params_publisher):
+    camera_ids = LaunchConfiguration('camera_ids').perform(context) 
+    camera_ids_list = camera_ids.strip('][').split(', ')
+   
+    nodes = []
+    
+    for camera_id in camera_ids_list:
+        
+        config_file = os.path.join(
+            get_package_share_directory('pylon_ros2_camera_wrapper'),
+            'config',
+            camera_id + '.yaml'
+        )
+
+        if (not os.path.exists(config_file)):
+            print("Configuration file " + config_file + " does not exist, using default one")
+            config_file = os.path.join(
+                get_package_share_directory('pylon_ros2_camera_wrapper'),
+                'config',
+                'default.yaml'
+            )
+        
+        nodes.append(Node(
+            package='pylon_ros2_camera_wrapper',        
+            namespace=camera_id,
+            executable='pylon_ros2_camera_wrapper',
+            name=node_name,
+            output='screen',
+            respawn=False,
+            emulate_tty=True,
+            prefix=launch_prefix,
+            parameters=[
+                config_file,
+                {
+                    'gige/mtu_size': mtu_size,
+                    'startup_user_set': startup_user_set,
+                    'enable_status_publisher': enable_status_publisher,
+                    'enable_current_params_publisher': enable_current_params_publisher
+                }
+            ]
+        ))
+        print("Added node for camera " + camera_id + "\n")
+        
+    return nodes  
 
 def _launch_node(context: LaunchContext):
     """Return the action to launch `pylon_ros2_camera_wrapper`.
@@ -22,9 +74,6 @@ def _launch_node(context: LaunchContext):
 
     # launch configuration variables
     node_name = LaunchConfiguration('node_name')
-    camera_id = LaunchConfiguration('camera_id')
-
-    config_file = LaunchConfiguration('config_file')
 
     mtu_size = LaunchConfiguration('mtu_size')
     startup_user_set = LaunchConfiguration('startup_user_set')
@@ -43,28 +92,50 @@ def _launch_node(context: LaunchContext):
         launch_prefix = ['xterm -e gdb -ex run --args']
     else:
         launch_prefix = ''
+        
+    camera_ids = LaunchConfiguration('camera_ids').perform(context) 
+    camera_ids_list = camera_ids.strip('][').split(', ')    
+    
+    nodes = []
+    
+    for camera_id in camera_ids_list:
+        
+        config_file = os.path.join(
+            get_package_share_directory('pylon_ros2_camera_wrapper'),
+            'config',
+            camera_id + '.yaml'
+        )
 
-    return [
-            Node(
-                package='pylon_ros2_camera_wrapper',
-                namespace=camera_id,
-                executable='pylon_ros2_camera_wrapper',
-                name=node_name,
-                output='screen',
-                respawn=respawn_bool,
-                emulate_tty=True,
-                prefix=launch_prefix,
-                parameters=[
-                    config_file,
-                    {
-                        'gige/mtu_size': mtu_size,
-                        'startup_user_set': startup_user_set,
-                        'enable_status_publisher': enable_status_publisher,
-                        'enable_current_params_publisher': enable_current_params_publisher
-                    }
-                ]
-            ),
-        ]
+        if (not os.path.exists(config_file)):
+            print("Configuration file " + config_file + " does not exist, using default one")
+            config_file = os.path.join(
+                get_package_share_directory('pylon_ros2_camera_wrapper'),
+                'config',
+                'default.yaml'
+            )
+        
+        nodes.append(Node(
+            package='pylon_ros2_camera_wrapper',        
+            namespace=camera_id,
+            executable='pylon_ros2_camera_wrapper',
+            name=node_name,
+            output='screen',
+            respawn=respawn_bool,
+            emulate_tty=True,
+            prefix=launch_prefix,
+            parameters=[
+                config_file,
+                {
+                    'gige/mtu_size': mtu_size,
+                    'startup_user_set': startup_user_set,
+                    'enable_status_publisher': enable_status_publisher,
+                    'enable_current_params_publisher': enable_current_params_publisher
+                }
+            ]
+        ))
+        print("Added node for camera " + camera_id + "\n")
+        
+    return nodes
 
 def generate_launch_description():
 
@@ -82,15 +153,9 @@ def generate_launch_description():
     )
 
     declare_camera_id_cmd = DeclareLaunchArgument(
-        'camera_id',
-        default_value='my_camera',
-        description='Id of the camera. Used as node namespace.'
-    )
-
-    declare_config_file_cmd = DeclareLaunchArgument(
-        'config_file',
-        default_value=default_config_file,
-        description='Camera parameters structured in a .yaml file.'
+        'camera_ids',
+        default_value="[stereo_left, stereo_right]",
+        description='IDs of the cameras. Each ID used as node namespace.'
     )
 
     declare_mtu_size_cmd = DeclareLaunchArgument(
@@ -130,7 +195,6 @@ def generate_launch_description():
     ld.add_action(declare_node_name_cmd)
     ld.add_action(declare_camera_id_cmd)
 
-    ld.add_action(declare_config_file_cmd)
     ld.add_action(declare_mtu_size_cmd)
     ld.add_action(declare_startup_user_set_cmd)
     ld.add_action(declare_enable_status_publisher_cmd)

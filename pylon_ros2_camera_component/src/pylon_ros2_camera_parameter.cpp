@@ -78,7 +78,10 @@ PylonROS2CameraParameter::PylonROS2CameraParameter() :
     device_user_id_(""),
     frame_rate_(5.0),
     camera_info_url_(""),
-    image_encoding_("")
+    image_encoding_(""),
+    hardware_trigger_line_(0),
+    reverse_x_(false),
+    reverse_y_(false)
 {
     // information logging severity mode
     //rcutils_ret_t __attribute__((unused)) res = rcutils_logging_set_logger_level(LOGGER.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -221,6 +224,27 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
     }
 
     this->image_encoding_ = encoding;
+    
+    // hardware triggering and reversing
+    
+    RCLCPP_DEBUG(LOGGER, "---> hardware_trigger_line");
+    if (!nh.has_parameter("hardware_trigger_line"))
+    {
+        nh.declare_parameter<int>("hardware_trigger_line", 0);
+    }
+    nh.get_parameter("hardware_trigger_line", this->hardware_trigger_line_);
+
+    if (nh.has_parameter("reverse_x") )
+    {
+        nh.get_parameter("reverse_x", this->reverse_x_);
+        RCLCPP_DEBUG_STREAM(LOGGER, "Reverse X: " << this->reverse_x_);
+    }
+
+    if (nh.has_parameter("reverse_y") )
+    {
+        nh.get_parameter("reverse_y", this->reverse_y_);
+        RCLCPP_DEBUG_STREAM(LOGGER, "Reverse Y: " << this->reverse_y_);
+    }
 
     // ##########################
     //  image intensity settings
@@ -591,6 +615,13 @@ void PylonROS2CameraParameter::validateParameterSet(rclcpp::Node& nh)
         RCLCPP_WARN_STREAM(LOGGER, "The specified exposure search timeout value - " << this->exposure_search_timeout_ << " - is too low!"
                                 << "-> Exposure search may fail.");
     }
+    
+    if (this->hardware_trigger_line_ < 1 && this->hardware_trigger_line_ > 4)
+    {
+        RCLCPP_WARN_STREAM(LOGGER, "The specified hardware trigger line value - " << this->hardware_trigger_line_ << " is not valid!"
+                                << "-> Will reset it to default value (0 - Software trigger).");
+        this->setHardwareTriggerLine(nh, 0);
+    }
 }
 
 const std::string& PylonROS2CameraParameter::deviceUserID() const
@@ -672,6 +703,57 @@ void PylonROS2CameraParameter::setCameraInfoURL(rclcpp::Node& nh, const std::str
     this->camera_info_url_ = camera_info_url;
     
     nh.set_parameter(rclcpp::Parameter("camera_info_url", this->camera_info_url_));
+}
+
+const int& PylonROS2CameraParameter::hardwareTriggerLine() const
+{
+    return this->hardware_trigger_line_;
+}
+
+void PylonROS2CameraParameter::setHardwareTriggerLine(rclcpp::Node& nh, const int& hardware_trigger_line)
+{
+    if (!nh.has_parameter("hardware_trigger_line"))
+    {
+        nh.declare_parameter<int>("hardware_trigger_line", 0);
+    }
+
+    this->hardware_trigger_line_ = hardware_trigger_line;
+    
+    nh.set_parameter(rclcpp::Parameter("hardware_trigger_line", this->hardware_trigger_line_));
+}
+
+const bool& PylonROS2CameraParameter::reverseX() const
+{
+    return this->reverse_x_;
+}
+
+void PylonROS2CameraParameter::setReverseX(rclcpp::Node& nh, const bool& reverse_x)
+{
+    if (!nh.has_parameter("reverse_x"))
+    {
+        nh.declare_parameter<bool>("reverse_x", false);
+    }
+
+    this->reverse_x_ = reverse_x;
+    
+    nh.set_parameter(rclcpp::Parameter("reverse_x", this->reverse_x_));
+}
+
+const bool& PylonROS2CameraParameter::reverseY() const
+{
+    return this->reverse_y_;
+}
+
+void PylonROS2CameraParameter::setReverseY(rclcpp::Node& nh, const bool& reverse_y)
+{
+    if (!nh.has_parameter("reverse_y"))
+    {
+        nh.declare_parameter<bool>("reverse_y", false);
+    }
+
+    this->reverse_y_ = reverse_y;
+    
+    nh.set_parameter(rclcpp::Parameter("reverse_y", this->reverse_y_));
 }
 
 }  // namespace pylon_ros2_camera

@@ -213,6 +213,18 @@ float PylonROS2CameraImpl<CameraTraitT>::currentExposure()
 }
 
 template <typename CameraTraitT>
+int64_t PylonROS2CameraImpl<CameraTraitT>::currentTimestamp()
+{
+    try {
+        cam_->TimestampLatch.Execute();
+        return static_cast<int64_t>(cam_->TimestampLatchValue.GetValue());
+    } catch (const GenICam::GenericException &e) {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "ERROR while getting camera timestamp: " << e.GetDescription());
+        return 0;
+    }
+}
+
+template <typename CameraTraitT>
 float PylonROS2CameraImpl<CameraTraitT>::currentGain()
 {
     float curr_gain = (static_cast<float>(gain().GetValue()) - static_cast<float>(gain().GetMin())) /
@@ -410,6 +422,7 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
     }
     catch ( const GenICam::GenericException &e )
     {
+    	RCLCPP_ERROR_STREAM(LOGGER_BASE, "PylonROS2Camera got exception at startGrabbing: " << e.GetDescription());
         return false;
     }
 
@@ -418,7 +431,7 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
 
 // Grab a picture as std::vector of 8bits objects
 template <typename CameraTrait>
-bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp::Time &stamp)
+bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp)
 {
     Pylon::CBaslerUniversalGrabResultPtr ptr_grab_result;
     if (!this->grab(ptr_grab_result))
@@ -426,6 +439,10 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp:
         RCLCPP_ERROR(LOGGER_BASE, "Error: Grab was not successful");
         return false;
     }
+    
+    ros_timestamp = rclcpp::Clock{RCL_SYSTEM_TIME}.now();
+    internal_timestamp = ptr_grab_result->GetTimeStamp();
+    
     const uint8_t *pImageBuffer = reinterpret_cast<uint8_t*>(ptr_grab_result->GetBuffer());
 
     // ------------------------------------------------------------------------
@@ -469,7 +486,8 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp:
             }
             else
             {
-                stamp = rclcpp::Time(static_cast<uint64_t>(ptr_grab_result->ChunkTimestamp.GetValue()));
+            	// We use our own timestamping algorithm
+                //stamp = rclcpp::Time(static_cast<uint64_t>(ptr_grab_result->ChunkTimestamp.GetValue()));
             }
         }
         catch (const GenICam::GenericException &e)
@@ -486,7 +504,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image, rclcpp:
 
 // Grab a picture as pointer to 8bit array
 template <typename CameraTrait>
-bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image)
+bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp)
 {
     // If camera is not grabbing, don't grab
     if (!cam_->IsGrabbing())
@@ -500,6 +518,9 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image)
         RCLCPP_ERROR(LOGGER_BASE, "Error: Grab was not successful");
         return false;
     }
+    
+    ros_timestamp = rclcpp::Clock{RCL_SYSTEM_TIME}.now();
+    internal_timestamp = ptr_grab_result->GetTimeStamp();
 
     // ------------------------------------------------------------------------
     // Bit shifting

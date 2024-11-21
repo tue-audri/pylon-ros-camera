@@ -58,6 +58,9 @@ PylonROS2CameraNode::PylonROS2CameraNode(const rclcpp::NodeOptions& options)
   , is_sleeping_(false)
   , diagnostics_updater_(this)
 {
+
+  using namespace std::chrono_literals;	
+
   // information logging severity mode
   rcutils_ret_t __attribute__((unused)) res = rcutils_logging_set_logger_level(LOGGER.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   //RCUTILS_LOG_SEVERITY_DEBUG
@@ -78,6 +81,8 @@ PylonROS2CameraNode::PylonROS2CameraNode(const rclcpp::NodeOptions& options)
   timer_ = this->create_wall_timer(
             std::chrono::duration<double>(1. / this->frameRate()),
             std::bind(&PylonROS2CameraNode::spin, this));
+            
+  camera_timestamp_timer_ = this->create_wall_timer(2000ms, std::bind(&PylonROS2CameraNode::cameraTimeAcquisionTimerCallback, this));              
 }
 
 PylonROS2CameraNode::~PylonROS2CameraNode()
@@ -161,6 +166,12 @@ void PylonROS2CameraNode::initPublishers()
   this->current_params_pub_ = this->create_publisher<pylon_ros2_camera_interfaces::msg::CurrentParams>(msg_name, 10);
   msg_name = msg_prefix + "status";
   this->component_status_pub_ = this->create_publisher<pylon_ros2_camera_interfaces::msg::ComponentStatus>(msg_name, 5);
+  
+  msg_name = msg_prefix + "image_timestamp";
+  this->img_timestamp_pub_ = this->create_publisher<pylon_ros2_camera_interfaces::msg::CameraTimestamp>(msg_name, 10);
+
+  msg_name = msg_prefix + "camera_timestamp";
+  this->camera_timestamp_pub_ = this->create_publisher<pylon_ros2_camera_interfaces::msg::CameraTimestamp>(msg_name, 10);
 
   msg_name = msg_prefix + "image_raw";
   this->img_raw_pub_ = image_transport::create_camera_publisher(this, msg_name);
@@ -664,6 +675,28 @@ bool PylonROS2CameraNode::initAndRegister()
     }
     return false;
   }
+  
+  if (this->pylon_camera_parameter_set_.hardware_trigger_line_ != 0) {
+
+    if (this->pylon_camera_parameter_set_.hardware_trigger_line_ < 1 || this->pylon_camera_parameter_set_.hardware_trigger_line_ > 4) {
+      RCLCPP_ERROR(LOGGER, "Invalid trigger source line: %d. Must be 1, 2, 3 or 4", this->pylon_camera_parameter_set_.hardware_trigger_line_);
+      return false;
+    }
+
+    RCLCPP_INFO(LOGGER, "Enabling hardware triggering via Line%d", this->pylon_camera_parameter_set_.hardware_trigger_line_);
+    RCLCPP_INFO(LOGGER, "Changing trigger mode: %s", this->pylon_camera_->setTriggerMode(true).c_str()); // On
+    RCLCPP_INFO(LOGGER, "Changing trigger source: %s", this->pylon_camera_->setTriggerSource(pylon_camera_parameter_set_.hardware_trigger_line_).c_str()); // Line1, Line2, Line3 or Line4
+    RCLCPP_INFO(LOGGER, "Changing trigger selector: %s", this->pylon_camera_->setTriggerSelector(0).c_str()); // FrameStart
+    
+  }
+
+  RCLCPP_INFO_STREAM(LOGGER, "Changing Reverse X to "
+    << this->pylon_camera_parameter_set_.reverse_x_ << ": "
+    << this->pylon_camera_->reverseXY(this->pylon_camera_parameter_set_.reverse_x_, true).c_str()); 
+
+  RCLCPP_INFO_STREAM(LOGGER, "Changing Reverse Y to "
+    << this->pylon_camera_parameter_set_.reverse_y_ << ": "
+    << this->pylon_camera_->reverseXY(this->pylon_camera_parameter_set_.reverse_y_, false).c_str()); 
 
   return true;
 }
@@ -854,11 +887,17 @@ bool PylonROS2CameraNode::startGrabbing()
 
   if (!this->pylon_camera_->isBlaze())
   {
+    rclcpp::Time now = rclcpp::Clock{RCL_SYSTEM_TIME}.now(); // To compare with camera time
+    auto now_camera = this->pylon_camera_->currentTimestamp();
+  
     RCLCPP_INFO_STREAM(LOGGER, "Startup settings: "
       << "encoding = '" << this->pylon_camera_->currentROSEncoding() << "', "
       << "binning = [" << this->pylon_camera_->currentBinningX() << ", "
                        << this->pylon_camera_->currentBinningY() << "], "
       << "exposure = " << this->pylon_camera_->currentExposure() << ", "
+      << "Camera name = " << this->pylon_camera_->deviceUserID() << ", "
+      << "current camera timestamp = " << now_camera << ", "
+      << "current ROS timestamp = " << now.nanoseconds() << ", "
       << "gain = " << this->pylon_camera_->currentGain() << ", "
       << "gamma = " <<  this->pylon_camera_->currentGamma() << ", "
       << "shutter mode = " << pylon_camera_parameter_set_.shutterModeString());
@@ -947,6 +986,8 @@ void PylonROS2CameraNode::spin()
         cam_info.header.stamp = this->img_raw_msg_.header.stamp;
         // publish via image_transport
         this->img_raw_pub_.publish(this->img_raw_msg_, cam_info);
+        // publish internal image timestamp
+        this->img_timestamp_pub_->publish(this->img_timestamp_);
       }
 
       // this->getNumSubscribersRectImagePub() involves that this->camera_info_manager_->isCalibrated() == true
@@ -1041,14 +1082,16 @@ bool PylonROS2CameraNode::grabImage()
   
   if (!this->pylon_camera_->isBlaze())
   {
-    // Store current time before the image is transmitted for a more accurate grab time estimation.
-    // If chunk timestamp is enabled, grab will overwrite it with the acquisition timestamp.
-    auto stamp = rclcpp::Node::now();
-    if (!this->pylon_camera_->grab(this->img_raw_msg_.data, stamp))
+    // Do not acquire timestamp in advance. Instead, acquire it after image is available and estimate delay later
+    rclcpp::Time ros_timestamp;
+    uint64_t internal_timestamp;
+    if (!this->pylon_camera_->grab(this->img_raw_msg_.data, ros_timestamp, internal_timestamp))
     {
       return false;
     }
-    this->img_raw_msg_.header.stamp = stamp;
+    this->img_raw_msg_.header.stamp = ros_timestamp;
+    this->img_timestamp_.header.stamp = ros_timestamp;
+    this->img_timestamp_.timestamp = internal_timestamp;
   }
   else
   {
@@ -4557,6 +4600,17 @@ void PylonROS2CameraNode::diagnosticsTimerCallback()
   this->diagnostics_updater_.force_update();
 }
 
+void PylonROS2CameraNode::cameraTimeAcquisionTimerCallback() 
+{
+    rclcpp::Time now = rclcpp::Clock{RCL_SYSTEM_TIME}.now(); // To compare with camera time
+    int64_t now_camera = this->pylon_camera_->currentTimestamp();
+    if (now_camera != 0) {
+        this->camera_timestamp_.header.stamp = now;
+        this->camera_timestamp_.timestamp = static_cast<uint64_t>(now_camera);
+        this->camera_timestamp_pub_->publish(this->camera_timestamp_);
+    }
+}
+
 bool PylonROS2CameraNode::serviceExists(const std::string& service_name)
 {
   std::map<std::string, std::vector<std::string>> results = rclcpp::Node::get_service_names_and_types();
@@ -4922,17 +4976,16 @@ std::shared_ptr<GrabImagesAction::Result> PylonROS2CameraNode::grabRawImages(con
     // already contains the number of channels
     img.step = img.width * this->pylon_camera_->imagePixelDepth();
 
-    // Store current time before the image is transmitted for a more accurate grab time estimation.
-    // If chunk timestamp is enabled, grab will overwrite it with the acquisition timestamp.
-    auto stamp = rclcpp::Node::now();
+    // Save time only after image is grabbed
     img.header.frame_id = cameraFrame();
-
-    if (!this->pylon_camera_->grab(img.data, stamp))
+    rclcpp::Time ros_timestamp;
+    uint64_t internal_timestamp;
+    if (!this->pylon_camera_->grab(img.data, ros_timestamp, internal_timestamp))
     {
       result->success = false;
       break;
     }
-    img.header.stamp = stamp;
+    img.header.stamp = ros_timestamp;
 
     feedback->curr_nr_images_taken = i + 1;
     //RCLCPP_DEBUG_STREAM(LOGGER, "Publishing feedback...");

@@ -69,9 +69,9 @@ public:
 
     virtual bool startGrabbing(const PylonROS2CameraParameter& parameters) override;
 
-    virtual bool grab(std::vector<uint8_t>& image, rclcpp::Time &stamp) override;
-
-    virtual bool grab(uint8_t* image) override;
+    // Added a parameter to save time as soon as image is received
+    virtual bool grab(std::vector<uint8_t>& image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp);
+    virtual bool grab(uint8_t* image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp);
 
     virtual bool setShutterMode(const pylon_ros2_camera::SHUTTER_MODE& mode) override;
 
@@ -122,6 +122,8 @@ public:
     virtual int imagePixelDepth() const override;
 
     virtual float currentExposure() override;
+    
+    virtual int64_t currentTimestamp();
 
     virtual float currentAutoExposureTimeLowerLimit() override;
 

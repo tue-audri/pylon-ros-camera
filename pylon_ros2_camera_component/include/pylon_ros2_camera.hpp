@@ -120,18 +120,21 @@ public:
     /**
      * Grab a camera frame and copy the result into image
      * @param image reference to the output image.
-     * @param stamp if chunk timestamp is enabled, overwrite input stamp with the acquisition timestamp.
+     * @param ros_timestamp reference to the output time assigned in ROS package when image is recieved. 
+     * @param internal_timestamp reference to the output internal timestamp (assigned by camera).
      * @return true if the image was grabbed successfully.
      */
-    virtual bool grab(std::vector<uint8_t>& image, rclcpp::Time &stamp) = 0;
+    virtual bool grab(std::vector<uint8_t>& image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp) = 0;
 
     /**
      * Grab a camera frame and copy the result into image
      * @param image pointer to the image buffer.
      *              Caution: Make sure the buffer is initialized correctly!
+     * @param ros_timestamp reference to the output time assigned in ROS package when image is recieved. 
+     * @param internal_timestamp reference to the output internal timestamp (assigned by camera).
      * @return true if the image was grabbed successfully.
      */
-    virtual bool grab(uint8_t* image) = 0;
+    virtual bool grab(uint8_t* image, rclcpp::Time& ros_timestamp, uint64_t& internal_timestamp) = 0;
 
     /**
      * Dedicated to blaze integration within the pylon driver - specify if the connected camera is a blaze
@@ -327,6 +330,12 @@ public:
      * @return the exposure time in microseconds.
      */
     virtual float currentExposure() = 0;
+    
+    /**
+     * Returns the current timestamp from camera's clock in nanoseconds since the camera was turned on.
+     * @return the timestamp in nanoseconds.
+     */
+    virtual int64_t currentTimestamp() = 0;
 
     /**
      * Returns the current auto exposure time lower limit
