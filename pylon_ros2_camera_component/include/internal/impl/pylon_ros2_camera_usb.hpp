@@ -115,8 +115,8 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
             cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
             cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
             RCLCPP_INFO_STREAM(LOGGER_USB, "Cam has upper exposure value limit range: ["
-                    << cam_->ExposureTimeAbs.GetMin()
-                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                    << cam_->ExposureTime.GetMin()
+                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
                     << "].");
 
             cam_->AutoGainLowerLimit.SetValue(cam_->Gain.GetMin());
@@ -186,8 +186,8 @@ bool PylonROS2USBCamera::applyCamSpecificStartupSettings(const PylonROS2CameraPa
             cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
             cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
             RCLCPP_INFO_STREAM(LOGGER_USB, "Cam has upper exposure value limit range: ["
-                    << cam_->ExposureTimeAbs.GetMin()
-                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                    << cam_->ExposureTime.GetMin()
+                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
                     << "].");
                     
             RCLCPP_INFO(LOGGER_USB, "CurrentSetting loaded");
