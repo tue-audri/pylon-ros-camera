@@ -9,8 +9,8 @@ Removing image_common as a submodule.
 2.2.0 (2024-10-25)
 -------------------
 * Taking into account auto exposure upper limit when user set is set to current setting.
-* Adding service to get ptp status
-* Changing cmake minimum version
+* Adding service to get ptp status.
+* Changing cmake minimum version.
 
 2.1.0 (2024-09-19)
 -------------------
