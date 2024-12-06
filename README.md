@@ -25,9 +25,7 @@ You are welcome to post any questions or issues on [GitHub](https://github.com/b
 
 This repository including the pylon ROS2 packages must be cloned in your workspace (e.g., `dev_ws` for instance):  
 ```
-cd ~/dev_ws/src && git clone --recursive -b humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera
-cd pylon_ros2_camera
-git submodule update --init --recursive
+cd ~/dev_ws/src && git clone -b humble https://github.com/basler/pylon-ros-camera pylon_ros2_camera
 ```  
 
 Install the ROS2 dependencies required by the pylon ROS2 packages:  
@@ -451,9 +449,6 @@ The folder `pylon_ros2_camera_wrapper/test` includes different test programs. te
 
 
 ## Known issues
-
-### Getting the number of subscribers from camera publisher
-It is not possible to count correctly the number of subscribers to the `image_raw` and `image_rect` topics because of a known issue with the function `CameraPublisher::getNumSubscribers`. That is why [this image_common package](https://github.com/ros-perception/image_common/tree/humble), fixing this issue, needs to be cloned and compiled together with the `pylon_ros2_camera_node`. 
 
 ### User input in terminal when starting node through launch files
 The ros2 launch mechanism doesn't allow to access stdin through a terminal (see [here](https://github.com/ros2/launch_ros/issues/165) and [here](https://answers.ros.org/question/343326/ros2-prefix-in-launch-file/)). This is solved in this implementation by installing and using `xterm` to emulate a terminal with possible user interaction.
