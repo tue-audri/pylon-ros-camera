@@ -120,13 +120,30 @@ bool PylonROS2GigEAce2Camera::applyCamSpecificStartupSettings(const PylonROS2Cam
                 *    due to 50Hz lamps (-> 20ms cycle duration)
                 *  - upper limit is to prevent motion blur
                 */
-            double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
-            cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
-            cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
-            RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
-                    << cam_->ExposureTimeAbs.GetMin()
-                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
-                    << "].");
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
+                cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
+                cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTimeAbs.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                        << "].");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTime.GetMax());
+                cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
+                cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTime.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
+                        << "].");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE_ACE2, "Problem when trying to set the camera AutoExposure thresholds: Problem with variable ID.");
+            }
 
             // The gain auto function and the exposure auto function can be used at the
             // same time. In this case, however, you must also set the
@@ -149,10 +166,25 @@ bool PylonROS2GigEAce2Camera::applyCamSpecificStartupSettings(const PylonROS2Cam
                 RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam does not support binning.");
             }
 
-            RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has exposure time range: ["
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has exposure time range: ["
                     << cam_->ExposureTimeAbs.GetMin()
                     << " - " << cam_->ExposureTimeAbs.GetMax()
                     << "] measured in microseconds.");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has exposure time range: ["
+                    << cam_->ExposureTime.GetMin()
+                    << " - " << cam_->ExposureTime.GetMax()
+                    << "] measured in microseconds.");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE_ACE2, "Problem when trying to display the camera exposure values: Problem with variable ID.");
+            }
+            
             RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has gain range: ["
                     << cam_->Gain.GetMin() << " - "
                     << cam_->Gain.GetMax()
@@ -245,13 +277,30 @@ bool PylonROS2GigEAce2Camera::applyCamSpecificStartupSettings(const PylonROS2Cam
                 *    due to 50Hz lamps (-> 20ms cycle duration)
                 *  - upper limit is to prevent motion blur
                 */
-            double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
-            cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
-            cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
-            RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
-                    << cam_->ExposureTimeAbs.GetMin()
-                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
-                    << "].");
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
+                cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
+                cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTimeAbs.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                        << "].");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTime.GetMax());
+                cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
+                cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE_ACE2, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTime.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
+                        << "].");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE_ACE2, "Problem when trying to set the camera AutoExposure thresholds: Problem with variable ID.");
+            }
                     
             cam_->GevSCPSPacketSize.SetValue(parameters.mtu_size_);
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);

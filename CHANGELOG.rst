@@ -2,6 +2,10 @@
 Changelog for package pylon_ros2_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.2 (2024-12-12)
+-------------------
+* Fixing bug related to ExposureTime/ExposureTimeAbs variable ID problem
+
 3.0.1 (2024-11-27)
 -------------------
 * Removing image_common as a submodule.
