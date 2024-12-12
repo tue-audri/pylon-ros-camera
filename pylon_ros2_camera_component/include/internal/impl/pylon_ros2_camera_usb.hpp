@@ -550,13 +550,17 @@ template <>
 float PylonROS2USBCamera::getTemperature(){
     try
     {
-        if ( GenApi::IsAvailable(cam_->DeviceTemperature) )
+        if (GenApi::IsAvailable(cam_->TemperatureAbs))
         {  
-            return static_cast<float>(cam_->DeviceTemperature.GetValue());   
+            return static_cast<float>(cam_->TemperatureAbs.GetValue());
+        }
+        else if (GenApi::IsAvailable(cam_->DeviceTemperature))
+        {
+            return static_cast<float>(cam_->DeviceTemperature.GetValue());
         }
         else 
         {
-             return 0.0;
+            return 0.0;
         }
     }
     catch ( const GenICam::GenericException &e )
