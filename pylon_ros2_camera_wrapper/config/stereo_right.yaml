@@ -4,16 +4,16 @@
   ros__parameters:
 
     #  The tf frame under which the images were published
-    camera_frame: pylon_camera
+    camera_frame: right_camera
 
     #  The DeviceUserID of the camera. If empty, the first camera found in the
     #  device list will be used
-    device_user_id: ""
+    device_user_id: "stereo_right"
 
     #  The CameraInfo URL (Uniform Resource Locator) where the optional intrinsic
     #  camera calibration parameters are stored. This URL string will be parsed
     #  from the ROS-CameraInfoManager:
-    camera_info_url: "file:///home/carpc/Software/daniil/vehicle-data-recorder/src/sensor_drivers/basler-camera/pylon_ros2_camera_wrapper/config/pylon_ros2_right_camera_node_info.yaml"
+    camera_info_url: "file:///home/carpc/Software/daniil/vehicle-data-recorder/src/sensor_drivers/pylon-ros-camera/pylon_ros2_camera_wrapper/config/pylon_ros2_right_camera_node_info.yaml"
 
     #  The encoding of the pixels -- channel meaning, ordering, size
     #  taken from the list of strings in include/sensor_msgs/image_encodings.h
