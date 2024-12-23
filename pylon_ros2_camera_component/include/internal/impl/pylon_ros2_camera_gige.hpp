@@ -177,13 +177,30 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
                 *    due to 50Hz lamps (-> 20ms cycle duration)
                 *  - upper limit is to prevent motion blur
                 */
-            double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
-            cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
-            cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
-            RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
-                    << cam_->ExposureTimeAbs.GetMin()
-                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
-                    << "].");
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
+                cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
+                cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTimeAbs.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
+                        << "].");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTime.GetMax());
+                cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
+                cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
+                        << cam_->ExposureTime.GetMin()
+                        << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
+                        << "].");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE, "Problem when trying to set the camera AutoExposure thresholds: Problem with variable ID.");
+            }
 
             //cam_->AutoGainRawLowerLimit.SetValue(cam_->GainRaw.GetMin());
             //cam_->AutoGainRawUpperLimit.SetValue(cam_->GainRaw.GetMax());
@@ -209,10 +226,25 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
                 RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam does not support binning.");
             }
 
-            RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has exposure time range: ["
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has exposure time range: ["
                     << cam_->ExposureTimeAbs.GetMin()
                     << " - " << cam_->ExposureTimeAbs.GetMax()
                     << "] measured in microseconds.");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has exposure time range: ["
+                    << cam_->ExposureTime.GetMin()
+                    << " - " << cam_->ExposureTime.GetMax()
+                    << "] measured in microseconds.");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE, "Problem when trying to display the camera exposure values: Problem with variable ID.");
+            }
+
             RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has gain range: ["
                     << cam_->GainRaw.GetMin() << " - "
                     << cam_->GainRaw.GetMax()
@@ -314,13 +346,30 @@ bool PylonROS2GigECamera::applyCamSpecificStartupSettings(const PylonROS2CameraP
                 *    due to 50Hz lamps (-> 20ms cycle duration)
                 *  - upper limit is to prevent motion blur
                 */
-            double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
-            cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
-            cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
-            RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
+            if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTimeAbs.GetMax());
+                cam_->AutoExposureTimeAbsLowerLimit.SetValue(cam_->ExposureTimeAbs.GetMin());
+                cam_->AutoExposureTimeAbsUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
                     << cam_->ExposureTimeAbs.GetMin()
                     << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTimeAbs.GetMax() << ")"
                     << "].");
+            }
+            else if (GenApi::IsAvailable(cam_->ExposureTime))
+            {
+                double upper_lim = std::min(parameters.auto_exposure_upper_limit_, cam_->ExposureTime.GetMax());
+                cam_->AutoExposureTimeLowerLimit.SetValue(cam_->ExposureTime.GetMin());
+                cam_->AutoExposureTimeUpperLimit.SetValue(upper_lim);
+                RCLCPP_INFO_STREAM(LOGGER_GIGE, "Cam has upper exposure value limit range: ["
+                    << cam_->ExposureTime.GetMin()
+                    << " - " << upper_lim << " (max possible value from cam is " << cam_->ExposureTime.GetMax() << ")"
+                    << "].");
+            }
+            else
+            {
+                RCLCPP_WARN_STREAM(LOGGER_GIGE, "Problem when trying to set the camera AutoExposure thresholds: Problem with variable ID.");
+            }
 
             cam_->GevSCPSPacketSize.SetValue(parameters.mtu_size_);
             cam_->GevSCPD.SetValue(parameters.inter_pkg_delay_);
@@ -393,15 +442,15 @@ GenApi::IFloat& PylonROS2GigECamera::exposureTime()
 {
     if (GenApi::IsAvailable(cam_->ExposureTimeAbs))
     {
-        return cam_->ExposureTimeAbs; // GigE ace 1
+        return cam_->ExposureTimeAbs;
     } 
     else if (GenApi::IsAvailable(cam_->ExposureTime)) 
     {
-        return cam_->ExposureTime; // GigE ace 2 (pylon 6)
+        return cam_->ExposureTime;
     }
     else
     {
-        throw std::runtime_error("Error while accessing ExposureTimeAbs in PylonROS2GigECamera");
+        throw std::runtime_error("Error while accessing exposure time in PylonROS2GigECamera");
     }
 }
 
@@ -505,13 +554,17 @@ bool PylonROS2GigECamera::setGamma(const float& target_gamma, float& reached_gam
 template <>
 GenApi::IFloat& PylonROS2GigECamera::autoExposureTimeLowerLimit()
 {
-    if ( GenApi::IsAvailable(cam_->AutoExposureTimeAbsLowerLimit) )
+    if (GenApi::IsAvailable(cam_->AutoExposureTimeAbsLowerLimit))
     {
         return cam_->AutoExposureTimeAbsLowerLimit;
     }
+    else if (GenApi::IsAvailable(cam_->AutoExposureTimeLowerLimit))
+    {
+        return cam_->AutoExposureTimeLowerLimit;
+    }
     else
     {
-        throw std::runtime_error("Error while accessing AutoExposureTimeAbsLowerLimit in PylonROS2GigECamera");
+        throw std::runtime_error("Error while accessing auto exposure time lower limit in PylonROS2GigECamera");
     }
 }
 
@@ -522,9 +575,13 @@ GenApi::IFloat& PylonROS2GigECamera::autoExposureTimeUpperLimit()
     {
         return cam_->AutoExposureTimeAbsUpperLimit;
     }
+    else if ( GenApi::IsAvailable(cam_->AutoExposureTimeUpperLimit) )
+    {
+        return cam_->AutoExposureTimeUpperLimit;
+    }
     else
     {
-        throw std::runtime_error("Error while accessing AutoExposureTimeAbsUpperLimit in PylonROS2GigECamera");
+        throw std::runtime_error("Error while accessing auto exposure time upper limit in PylonROS2GigECamera");
     }
 }
 
@@ -1554,13 +1611,17 @@ float PylonROS2GigECamera::getTemperature()
 {
     try
     {
-        if ( GenApi::IsAvailable(cam_->TemperatureAbs) )
+        if (GenApi::IsAvailable(cam_->TemperatureAbs))
         {  
-            return static_cast<float>(cam_->TemperatureAbs.GetValue());   
+            return static_cast<float>(cam_->TemperatureAbs.GetValue());
+        }
+        else if (GenApi::IsAvailable(cam_->DeviceTemperature))
+        {
+            return static_cast<float>(cam_->DeviceTemperature.GetValue());
         }
         else 
         {
-             return 0.0;
+            return 0.0;
         }
     }
     catch ( const GenICam::GenericException &e )
