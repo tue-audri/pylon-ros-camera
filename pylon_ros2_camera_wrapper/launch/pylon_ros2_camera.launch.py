@@ -54,6 +54,7 @@ def _launch_node(context: LaunchContext):
                 respawn=respawn_bool,
                 emulate_tty=True,
                 prefix=launch_prefix,
+                remappings=[('pylon_ros2_camera_node/image_raw', 'image_raw'),('pylon_ros2_camera_node/camera_info', 'camera_info')],
                 parameters=[
                     config_file,
                     {
