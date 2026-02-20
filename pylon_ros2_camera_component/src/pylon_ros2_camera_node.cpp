@@ -665,6 +665,14 @@ bool PylonROS2CameraNode::initAndRegister()
     return false;
   }
 
+  RCLCPP_INFO_STREAM(LOGGER, "Changing Reverse X to "
+    << this->pylon_camera_parameter_set_.reverse_x_ << ": "
+    << this->pylon_camera_->reverseXY(this->pylon_camera_parameter_set_.reverse_x_, true).c_str()); 
+
+  RCLCPP_INFO_STREAM(LOGGER, "Changing Reverse Y to "
+    << this->pylon_camera_parameter_set_.reverse_y_ << ": "
+    << this->pylon_camera_->reverseXY(this->pylon_camera_parameter_set_.reverse_y_, false).c_str()); 
+
   return true;
 }
 

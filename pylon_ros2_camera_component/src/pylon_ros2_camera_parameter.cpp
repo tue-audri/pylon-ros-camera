@@ -78,7 +78,9 @@ PylonROS2CameraParameter::PylonROS2CameraParameter() :
     device_user_id_(""),
     frame_rate_(5.0),
     camera_info_url_(""),
-    image_encoding_("")
+    image_encoding_(""),
+    reverse_x_(false),
+    reverse_y_(false)
 {
     // information logging severity mode
     //rcutils_ret_t __attribute__((unused)) res = rcutils_logging_set_logger_level(LOGGER.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -222,6 +224,17 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
 
     this->image_encoding_ = encoding;
 
+    if (nh.has_parameter("reverse_x") )
+    {
+        nh.get_parameter("reverse_x", this->reverse_x_);
+        RCLCPP_DEBUG_STREAM(LOGGER, "Reverse X: " << this->reverse_x_);
+    }
+
+    if (nh.has_parameter("reverse_y") )
+    {
+        nh.get_parameter("reverse_y", this->reverse_y_);
+        RCLCPP_DEBUG_STREAM(LOGGER, "Reverse Y: " << this->reverse_y_);
+    }
     // ##########################
     //  image intensity settings
     // ##########################
@@ -672,6 +685,40 @@ void PylonROS2CameraParameter::setCameraInfoURL(rclcpp::Node& nh, const std::str
     this->camera_info_url_ = camera_info_url;
     
     nh.set_parameter(rclcpp::Parameter("camera_info_url", this->camera_info_url_));
+}
+
+const bool& PylonROS2CameraParameter::reverseX() const
+{
+    return this->reverse_x_;
+}
+
+void PylonROS2CameraParameter::setReverseX(rclcpp::Node& nh, const bool& reverse_x)
+{
+    if (!nh.has_parameter("reverse_x"))
+    {
+        nh.declare_parameter<bool>("reverse_x", false);
+    }
+
+    this->reverse_x_ = reverse_x;
+    
+    nh.set_parameter(rclcpp::Parameter("reverse_x", this->reverse_x_));
+}
+
+const bool& PylonROS2CameraParameter::reverseY() const
+{
+    return this->reverse_y_;
+}
+
+void PylonROS2CameraParameter::setReverseY(rclcpp::Node& nh, const bool& reverse_y)
+{
+    if (!nh.has_parameter("reverse_y"))
+    {
+        nh.declare_parameter<bool>("reverse_y", false);
+    }
+
+    this->reverse_y_ = reverse_y;
+    
+    nh.set_parameter(rclcpp::Parameter("reverse_y", this->reverse_y_));
 }
 
 }  // namespace pylon_ros2_camera
